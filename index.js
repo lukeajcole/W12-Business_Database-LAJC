@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const Department = require("./lib/departments");
 const Employees = require('./lib/employees');
+const Roles = require('./lib/roles');
 const menuChoices = ['view all departments' , 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'All Done!']
 
 class Business {
@@ -41,7 +42,7 @@ class Business {
         this.employee(selection);
       } else
       if(selection.includes('role')){
-
+        this.role(selection);
       }
     }
 
@@ -108,6 +109,38 @@ class Business {
         };
   }
 
+  role(selection){
+    const role = new Roles ();
+        if (selection.includes('view')){
+          role.view(this);
+        } else if(selection.includes('add')){
+          inquirer   
+          .prompt([
+              {
+                  type: 'input',
+                  name: 'title',
+                  message: "What is the Role title?"
+              },
+              {
+                type: 'input',
+                name: 'salary',
+                message: "What is the salary?"
+              },
+              {
+                type: 'list',
+                name: 'department',
+                message: "What department is the role in?",
+                choices: this.roles
+              }
+            ])
+
+          .then((answers) => {
+            this.roles.push(answers.title);
+            role.add(answers);
+            this.mainMenu();
+          });
+        }
+      }
 }
 
 
