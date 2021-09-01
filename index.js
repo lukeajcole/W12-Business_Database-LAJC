@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const db = require('./lib/connection');
 const Department = require("./lib/departments");
 const Employees = require('./lib/employees');
 const Roles = require('./lib/roles');
@@ -7,9 +8,6 @@ const menuChoices = ['view all departments' , 'view all roles', 'view all employ
 class Business {
   constructor (menuItems, roles, departments, managers) {
     this.menuItems = menuItems;
-    this.roles = ["Production Supervisor","Quality Analyst","Systems Analyst","IS Director"]
-    this.departments = ['Production', 'Quality', 'Information Systems']
-    this.employees = ['Nick Brown', 'Carolyn Kennedy', 'Luke Cole','Jason Guhse', 'NONE']
   }
 
 
@@ -73,40 +71,46 @@ class Business {
         if (selection.includes('view')){
           employee.view(this);
         } else if(selection.includes('add')){
-          inquirer   
-          .prompt([
-              {
-                  type: 'input',
-                  name: 'first_name',
-                  message: "What is their First Name?"
-              },
-              {
-                  type: 'input',
-                  name: 'last_name',
-                  message: "What is their Last Name?"
-              }
-              ,
-              {
-                  type: 'list',
-                  name: 'role',
-                  message: "What is their role?",
-                  choices: this.roles
-              },
-              {
-                  type: 'list',
-                  name: 'manager',
-                  message: "Who is their manager?",
-                  choices: this.employees
-              }
-          ])
-          .then((answers) => {
-            this.employees.push(`${answers.first_name} ${answers.last_name}`);
-            employee.add(answers);
-            this.mainMenu();
-          });
-        } else if(selection.includes('update')){
-          employee.update()
-        };
+          const sql = `SELECT DISTINCT title FROM roles;
+                       SELECT DISTINCT CONCAT(first_name, " ", last_name) as Employee FROM employee;`
+          db.query(sql , async (err, results) => {
+              const rolesArr = await results[0].map((title) => title.title);
+              const employeesArr = await results[1].map((Employee) => Employee.Employee);
+              console.log(rolesArr);
+              console.log(employeesArr);
+              inquirer   
+              .prompt([
+                  {
+                      type: 'input',
+                      name: 'first_name',
+                      message: "What is their First Name?"
+                  },
+                  {  
+                      type: 'input',
+                      name: 'last_name',
+                      message: "What is their Last Name?"
+                  },
+                  {
+                      type: 'list',
+                      name: 'role',
+                      message: "What is their role?",
+                      choices: rolesArr
+                  },
+                  {
+                      type: 'list',
+                      name: 'manager',
+                      message: "Who is their manager?",
+                      choices: employeesArr
+                  }
+                    ])
+                  .then((answers) => {
+                    employee.add(answers);
+                    this.mainMenu();
+                    });
+                });
+            } else if(selection.includes('update')){
+              employee.update()
+            };
   }
 
   role(selection){
@@ -114,30 +118,34 @@ class Business {
         if (selection.includes('view')){
           role.view(this);
         } else if(selection.includes('add')){
-          inquirer   
-          .prompt([
-              {
-                  type: 'input',
-                  name: 'title',
-                  message: "What is the Role title?"
-              },
-              {
-                type: 'input',
-                name: 'salary',
-                message: "What is the salary?"
-              },
-              {
-                type: 'list',
-                name: 'department',
-                message: "What department is the role in?",
-                choices: this.roles
-              }
-            ])
+          
+          db.query("SELECT name FROM department", (err, results) => {
+                console.log(results);
 
-          .then((answers) => {
-            this.roles.push(answers.title);
-            role.add(answers);
-            this.mainMenu();
+                inquirer   
+                .prompt([
+                    {
+                        type: 'input',
+                        name: 'title',
+                        message: "What is the Role title?"
+                    },
+                    {
+                      type: 'input',
+                      name: 'salary',
+                      message: "What is the salary?"
+                    },
+                    {
+                      type: 'list',
+                      name: 'department',
+                      message: "What department is the role in?",
+                      choices: results
+                    }
+                  ])
+
+                .then((answers) => {
+                  role.add(answers);
+                  this.mainMenu();
+                });
           });
         }
       }
