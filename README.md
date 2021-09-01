@@ -22,9 +22,11 @@ Be sure to run the following command in a terminal that's opened in the same dir
 Run the application in the integrated terminal by typing "node index.js". 
 
 
-Here is what the site looks like!
-![site demo](../assets/screenshot.PNG)
-![site demo](../assets/screenshot2.PNG)
+Here's a gif of the tracker in action!
+![site demo](DEMO.gif)
+
+Here's a link to the video as well
+[Employee Tracker Video](https://drive.google.com/file/d/1o8e81t2e2W21PQFWuqXx43WGuUXbQsSg/view)
 
 ## <ins>Questions</ins>
 Contact the creator of Employee Tracker at lukeajcole@gmail.com. Github link: https://github.com/lukeajcole

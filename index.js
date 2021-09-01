@@ -9,8 +9,6 @@ class Business {
   constructor (menuItems, roles, departments, managers) {
     this.menuItems = menuItems;
   }
-
-
   mainMenu () {
       inquirer
       .prompt([
@@ -59,7 +57,6 @@ class Business {
           }
       ])
       .then((answers) => {
-              this.departments.push(answers.name);
               department.add(answers.name);
               this.mainMenu();    
       }); 
@@ -76,8 +73,6 @@ class Business {
           db.query(sql , async (err, results) => {
               const rolesArr = await results[0].map((title) => title.title);
               const employeesArr = await results[1].map((Employee) => Employee.Employee);
-              console.log(rolesArr);
-              console.log(employeesArr);
               inquirer   
               .prompt([
                   {
@@ -109,7 +104,35 @@ class Business {
                     });
                 });
             } else if(selection.includes('update')){
-              employee.update()
+              const sql = `SELECT DISTINCT title FROM roles;
+              SELECT DISTINCT CONCAT(first_name, " ", last_name) as Employee FROM employee;`
+                db.query(sql , async (err, results) => {
+                    const rolesArr = await results[0].map((title) => title.title);
+                    const employeesArr = await results[1].map((Employee) => Employee.Employee);
+                    inquirer   
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'employee_name',
+                            message: "Which Employee will you update?",
+                            choices: employeesArr
+                        },
+                        {  
+                            type: 'list',
+                            name: 'role',
+                            message: "Select a role...",
+                            choices: rolesArr
+                        }
+                          ])
+                        .then((answers) => {
+                          db.query(`SELECT id FROM roles WHERE title = '${answers.role}'`, (err,results)=>{
+                            answers.role = results[0].id
+                            console.log(answers.role);
+                            employee.update(answers);
+                            this.mainMenu();
+                          });
+                          });
+                      });
             };
   }
 
